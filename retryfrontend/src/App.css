@@ -1,0 +1,4 @@
+.flexyBox {
+  display: flex;
+  flex-direction: column;
+}
