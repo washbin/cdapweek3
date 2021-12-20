@@ -1,9 +1,8 @@
 from os import getenv
 
-from pika import BlockingConnection, ConnectionParameters
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pika import BlockingConnection, ConnectionParameters, URLParameters
 
 ORIGINS = [
     "http://localhost",
@@ -11,9 +10,10 @@ ORIGINS = [
     "http://localhost:3000",
 ]
 
-PARAMETERS = ConnectionParameters(
-    host=getenv("RABBITMQ_HOST"), connection_attempts=5, retry_delay=1
-)
+PARAMETERS = URLParameters(getenv("RABBITMQ_CONNECTION_URI"))
+# ConnectionParameters(
+#     host=getenv("RABBITMQ_HOST"), connection_attempts=5, retry_delay=1
+# )
 
 app = FastAPI()
 

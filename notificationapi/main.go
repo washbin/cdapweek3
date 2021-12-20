@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -11,14 +10,21 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
+var (
+	connectionURI = os.Getenv("RABBITMQ_CONNECTION_URI")
+	accountSid    = os.Getenv("TWILIO_ACCOUNT_SID")
+	authToken     = os.Getenv("TWILIO_AUTH_TOKEN")
+	from          = os.Getenv("TWILIO_FROM_PHONE_NUMBER")
+	to            = os.Getenv("TWILIO_TO_PHONE_NUMBER")
+
+	client = twilio.NewRestClientWithParams(twilio.RestClientParams{
+		Username: accountSid,
+		Password: authToken,
+	})
+)
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(connectionURI)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -51,32 +57,34 @@ func main() {
 
 	go func() {
 		for d := range msgs {
+			log.Printf("Received a message: %s", d.Body)
+			log.Printf("Sending a SMS message...")
 
-			accountSid := os.Getenv("TWILIO_ACCOUNT_SID")
-			authToken := os.Getenv("TWILIO_AUTH_TOKEN")
-			client := twilio.NewRestClientWithParams(twilio.RestClientParams{
-				Username: accountSid,
-				Password: authToken,
-			})
-
-			from := os.Getenv("TWILIO_FROM_PHONE_NUMBER")
-			to := os.Getenv("TWILIO_TO_PHONE_NUMBER")
-
+			message := "Hello there, You just ordered Product " + string(d.Body)
 			params := &openapi.CreateMessageParams{
 				To:   &to,
 				From: &from,
+				Body: &message,
 			}
-			params.SetBody("Hello there, You just ordered Product " + string(d.Body))
 
 			resp, err := client.ApiV2010.CreateMessage(params)
 			failOnError(err, "Failed to create SMS message")
-			response, _ := json.Marshal(*resp)
-			fmt.Println("Resonse: " + string(response))
 
-			log.Printf("Received a message: %s", d.Body)
+			response, err := json.Marshal(*resp)
+			failOnError(err, "Failed to marshall json response")
+
+			log.Printf("Twilio Resonse: " + string(response))
+			log.Printf("Succesfully sent SMS message!!!\n")
+
 		}
 	}()
 
 	log.Printf("[*] Waiting for messages. To exit press Ctrl+C")
 	<-forever
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
 }

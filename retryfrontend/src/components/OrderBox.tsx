@@ -8,6 +8,8 @@ export interface Order {
   altText: string;
 }
 
+const ORDER_API_URI = process.env.ORDER_API_URI ?? "http://localhost:8000";
+
 function delay(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
@@ -22,7 +24,7 @@ function OrderBox({ index, name, imageURL, altText }: Order): JSX.Element {
       setOrderStatus(`Product ${index} order failed, Try again later.`);
       return;
     }
-    fetch(`http://localhost:8000/orders/${index}`, {
+    fetch(`${ORDER_API_URI}/orders/${index}`, {
       method: "post",
     })
       .then((res) => res.json())
