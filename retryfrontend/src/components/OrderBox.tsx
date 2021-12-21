@@ -27,10 +27,18 @@ function OrderBox({ index, name, imageURL, altText }: Order): JSX.Element {
     fetch(`${ORDER_API_URI}/orders/${index}`, {
       method: "post",
     })
-      .then((res) => res.json())
-      .then((_response) => {
-        alert(`Product ${index} ordered succesfully.`);
-        setOrderStatus("");
+      .then((res) => {
+        if (res.status !== 200) return false;
+        return res.json();
+      })
+      .then((response) => {
+        if (response === false) {
+          alert(`Product ${index} order failed, Try again later.`);
+          setOrderStatus(`Product ${index} order failed, Try again later.`);
+        } else {
+          alert(`Product ${index} ordered succesfully.`);
+          setOrderStatus("");
+        }
         return;
       })
       .catch(async (err) => {

@@ -2,7 +2,7 @@ from os import getenv
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pika import BlockingConnection, ConnectionParameters, URLParameters
+from pika import BlockingConnection, URLParameters
 
 ORIGINS = [
     "http://localhost",
@@ -11,12 +11,8 @@ ORIGINS = [
 ]
 
 PARAMETERS = URLParameters(getenv("RABBITMQ_CONNECTION_URI"))
-# ConnectionParameters(
-#     host=getenv("RABBITMQ_HOST"), connection_attempts=5, retry_delay=1
-# )
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,9 +30,12 @@ def read_root():
 
 @app.post("/orders/{item_id}")
 async def order_item(item_id: int):
-    connection = BlockingConnection(PARAMETERS)
-    channel = connection.channel()
-    channel.queue_declare(queue="orders")
-    channel.basic_publish(exchange="", routing_key="orders", body=f"{item_id}")
-    connection.close()
-    return {"msg": "Post successfully"}
+    try:
+        connection = BlockingConnection(PARAMETERS)
+        channel = connection.channel()
+        channel.queue_declare(queue="orders")
+        channel.basic_publish(exchange="", routing_key="orders", body=f"{item_id}")
+        connection.close()
+    except Exception as _:
+        return {"msg": "Product Order Failed"}, 500
+    return {"msg": "Post successfully"}, 200
