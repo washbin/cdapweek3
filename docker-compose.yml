@@ -1,0 +1,58 @@
+# docker-compose.yml
+version: "3.2"
+networks:
+  cdapweek4:
+services:
+  rabbitmq-server:
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    networks:
+      - cdapweek4
+
+  orders-api:
+    build: ./ordersapi/.
+    depends_on:
+      - rabbitmq-server
+    ports:
+      - 8000:8000
+    env_file:
+      - ./ordersapi/.env
+    environment:
+      RABBITMQ_CONNECTION_URI: amqp://guest:guest@rabbitmq-server:5672
+    restart: on-failure
+    networks:
+      - cdapweek4
+
+  notification-api:
+    build: ./notificationapi/.
+    depends_on:
+      - rabbitmq-server
+    env_file:
+      - ./notificationapi/.env
+    environment:
+      RABBITMQ_CONNECTION_URI: amqp://guest:guest@rabbitmq-server:5672
+    restart: on-failure
+    networks:
+      - cdapweek4
+
+  retry-frontend:
+    build:
+      context: ./retryfrontend/.
+      args:
+        ORDER_API_URI: http://localhost:8000
+    depends_on:
+      - orders-api
+    ports:
+      - 3000:80
+    networks:
+      - cdapweek4
