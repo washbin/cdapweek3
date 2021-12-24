@@ -6,8 +6,8 @@ COPY package.json yarn.lock ./
 RUN yarn install --production --frozen-lockfile
 COPY . .
 
-ARG ORDER_API_URI
-ENV ORDER_API_URI=${ORDER_API_URI}
+ARG REACT_APP_ORDER_API_URI
+ENV REACT_APP_ORDER_API_URI=${REACT_APP_ORDER_API_URI}
 RUN yarn run build
 
 

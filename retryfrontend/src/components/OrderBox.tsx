@@ -8,7 +8,7 @@ export interface Order {
   altText: string;
 }
 
-const ORDER_API_URI = process.env.ORDER_API_URI ?? "http://localhost:8000";
+const ORDER_API_URI = process.env.REACT_APP_ORDER_API_URI;
 
 function delay(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));

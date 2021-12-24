@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	connectionURI = os.Getenv("RABBITMQ_CONNECTION_URI")
+	connectionURI = "amqp://" + os.Getenv("RABBITMQ_USER") + ":" + os.Getenv("RABBITMQ_PASS") + "@" + os.Getenv("RABBITMQ_HOST") + ":5672"
 	accountSid    = os.Getenv("TWILIO_ACCOUNT_SID")
 	authToken     = os.Getenv("TWILIO_AUTH_TOKEN")
 	from          = os.Getenv("TWILIO_FROM_PHONE_NUMBER")

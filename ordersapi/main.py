@@ -10,7 +10,8 @@ ORIGINS = [
     "http://localhost:3000",
 ]
 
-PARAMETERS = URLParameters(getenv("RABBITMQ_CONNECTION_URI"))
+RABBITMQ_CONNECTION_URI = f"amqp://{getenv('RABBITMQ_USER')}:{getenv('RABBITMQ_PASS')}@{getenv('RABBITMQ_HOST')}:{getenv('RABBITMQ_PORT', 5672)}"
+PARAMETERS = URLParameters(RABBITMQ_CONNECTION_URI)
 
 app = FastAPI()
 

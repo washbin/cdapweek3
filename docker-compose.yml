@@ -1,7 +1,9 @@
 # docker-compose.yml
 version: "3.2"
+
 networks:
   cdapweek4:
+
 services:
   rabbitmq-server:
     image: rabbitmq:3-management
