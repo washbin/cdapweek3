@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordersapi-deployment
+  labels:
+    app: ordersapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ordersapi
+  template:
+    metadata:
+      labels:
+        app: ordersapi
+    spec:
+      containers:
+        - name: ordersapi
+          image: washbin/cdapordersapi:0.2
+          ports:
+            - containerPort: 8000
+          env:
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-configmap
+                  key: rabbitmq_url
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-default-username
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-default-password
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersapi-service
+spec:
+  selector:
+    app: ordersapi
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

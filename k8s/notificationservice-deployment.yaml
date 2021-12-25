@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notificationservice-deployment
+  labels:
+    app: notifyservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifyservice
+  template:
+    metadata:
+      labels:
+        app: notifyservice
+    spec:
+      containers:
+        - name: notifyservice
+          image: washbin/cdapnotificationservice:0.2
+          env:
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-configmap
+                  key: rabbitmq_url
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-default-username
+            - name: RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-default-password
+            - name: TWILIO_ACCOUNT_SID
+              valueFrom:
+                secretKeyRef:
+                  name: notificationservice-secret
+                  key: notification-twilio-sid
+            - name: TWILIO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: notificationservice-secret
+                  key: notification-twilio-auth-token
+            - name: TWILIO_FROM_PHONE_NUMBER
+              valueFrom:
+                secretKeyRef:
+                  name: notificationservice-secret
+                  key: notification-twilio-from-phone
+            - name: TWILIO_TO_PHONE_NUMBER
+              valueFrom:
+                secretKeyRef:
+                  name: notificationservice-secret
+                  key: notification-twilio-to-phone
