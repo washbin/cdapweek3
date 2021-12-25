@@ -30,7 +30,9 @@ services:
     env_file:
       - ./ordersapi/.env
     environment:
-      RABBITMQ_CONNECTION_URI: amqp://guest:guest@rabbitmq-server:5672
+      RABBITMQ_HOST: rabbitmq-server
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
     restart: on-failure
     networks:
       - cdapweek4
@@ -42,7 +44,9 @@ services:
     env_file:
       - ./notificationapi/.env
     environment:
-      RABBITMQ_CONNECTION_URI: amqp://guest:guest@rabbitmq-server:5672
+      RABBITMQ_HOST: rabbitmq-server
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
     restart: on-failure
     networks:
       - cdapweek4

@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --production --frozen-lockfile
 COPY . .
+ENV GENERATE_SOURCEMAP=false
 RUN yarn run build
 
 
