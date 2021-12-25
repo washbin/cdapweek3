@@ -14,14 +14,14 @@ services:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      test: ["CMD", "nc", "-z", "localhost", "5672"]
       interval: 5s
       timeout: 15s
       retries: 1
     networks:
       - cdapweek4
 
-  orders-api:
+  ordersapi-service:
     build: ./ordersapi/.
     depends_on:
       - rabbitmq-server
@@ -48,12 +48,9 @@ services:
       - cdapweek4
 
   retry-frontend:
-    build:
-      context: ./retryfrontend/.
-      args:
-        ORDER_API_URI: http://localhost:8000
+    build: ./retryfrontend/.
     depends_on:
-      - orders-api
+      - ordersapi-service
     ports:
       - 3000:80
     networks:

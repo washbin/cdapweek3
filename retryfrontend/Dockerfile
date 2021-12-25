@@ -5,9 +5,6 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --production --frozen-lockfile
 COPY . .
-
-ARG REACT_APP_ORDER_API_URI
-ENV REACT_APP_ORDER_API_URI=${REACT_APP_ORDER_API_URI}
 RUN yarn run build
 
 
